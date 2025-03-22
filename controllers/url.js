@@ -1,21 +1,27 @@
 const shortid = require("shortid");
+const validUrl = require("valid-url");
 const URL = require("../models/url.js");
 
 async function handleGenerateNewShortUrl(req, res) {
-  const body = req.body;
-  if (!body.url) return res.status(400).json({ error: "url is required" });
+  const { url } = req.body;
+
+  // Validate URL
+  if (!url || !validUrl.isUri(url)) {
+    return res.status(400).json({ error: "Invalid URL format" });
+  }
+
   const shortID = shortid();
 
-  await URL.create({
+  const newUrl = await URL.create({
     shortId: shortID,
-    redirectURL: body.url,
+    redirectURL: url,
     visitHistory: [],
   });
 
-  return res.render("home", {
-    id: shortID,
+  return res.json({
+    id: newUrl.shortId,
+    shortUrl: `http://localhost:8001/urls/${shortID}`,
   });
-  return res.json({ id: shortID });
 }
 
 async function handleGetAnalytics(req, res) {

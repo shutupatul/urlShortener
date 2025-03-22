@@ -23,20 +23,23 @@ app.use("/url", urlRoute);
 app.use("/", staticRoute);
 
 app.get("/urls/:shortId", async (req, res) => {
-  const shortId = req.params.shortId;
-  const entry = await URL.findOneAndUpdate(
-    {
-      shortId,
-    },
-    {
-      $push: {
-        visitHistory: {
-          timeStamp: Date.now(),
-        },
-      },
+  try {
+    const shortId = req.params.shortId;
+    const entry = await URL.findOneAndUpdate(
+      { shortId },
+      { $push: { visitHistory: { timeStamp: Date.now() } } },
+      { new: true }
+    );
+
+    if (!entry) {
+      return res.status(404).json({ error: "Short URL not found" });
     }
-  );
-  res.redirect(entry.redirectURL);
+
+    res.redirect(entry.redirectURL);
+  } catch (error) {
+    console.error("Error redirecting:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 });
 
 app.listen(PORT, () => console.log(`Server statrted at PORT: ${PORT}`));
