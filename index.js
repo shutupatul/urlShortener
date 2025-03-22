@@ -2,6 +2,8 @@ const express = require("express");
 const path = require("path");
 const { connectToMongoDB } = require("./connect");
 const urlRoute = require("./routes/url");
+const errorHandler = require("./middlewares/errorHandler");
+const logger = require("./middlewares/logger");
 const staticRoute = require("./routes/staticRouter");
 const { timeStamp } = require("console");
 const URL = require("./models/url");
@@ -11,6 +13,13 @@ const PORT = 8001;
 connectToMongoDB("mongodb://localhost:27017/short-url").then(() =>
   console.log("MongoDB Connected")
 );
+
+app.use(errorHandler);
+
+app.use((req, res, next) => {
+  logger.info(`Received ${req.method} request for ${req.url}`);
+  next();
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
