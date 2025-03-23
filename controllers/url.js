@@ -9,23 +9,28 @@ function isValidUrl(url) {
 
 async function handleGenerateNewShortUrl(req, res, next) {
   try {
-    const { url } = req.body;
+    const { url, customAlias } = req.body;
 
-    if (!url || !validUrl.isUri(url)) {
+    if (!url || !isValidUrl(url)) {
       return res.status(400).json({ error: "Invalid URL format" });
     }
 
-    const shortID = shortid();
+    let shortID = customAlias || shortid();
+
+    const existingUrl = await URL.findOne({ shortId: shortID });
+    if (existingUrl) {
+      return res.status(400).json({ error: "Custom alias already taken" });
+    }
+
     const newUrl = await URL.create({
       shortId: shortID,
       redirectURL: url,
       visitHistory: [],
     });
 
-    console.log(`🔗 New Short URL Created: ${shortID} -> ${url}`);
     return res.render("home", { id: newUrl.shortId });
   } catch (error) {
-    next(error); // Pass errors to errorHandler middleware
+    next(error);
   }
 }
 

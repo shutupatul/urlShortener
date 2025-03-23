@@ -40,35 +40,63 @@ app.get("/urls/:shortId", async (req, res) => {
   try {
     const shortId = req.params.shortId;
 
-    // Check Redis cache
-    let cachedURL;
-    try {
-      cachedURL = await redisClient.get(shortId);
-    } catch (redisError) {
-      console.warn("⚠️ Redis error, proceeding with MongoDB lookup...");
-    }
-
+    let cachedURL = await redisClient.get(shortId);
     if (cachedURL) {
       console.log("Cache Hit! Redirecting...");
       return res.redirect(cachedURL);
     }
 
-    // MongoDB Lookup
     const entry = await URL.findOneAndUpdate(
       { shortId },
-      { $push: { visitHistory: { timeStamp: Date.now() } } },
+      {
+        $push: {
+          visitHistory: {
+            timeStamp: Date.now(),
+            ip: req.ip,
+            userAgent: req.headers["user-agent"],
+          },
+        },
+      },
       { new: true }
     );
 
     if (!entry) return res.status(404).json({ error: "Short URL not found" });
 
-    // Store in Redis with expiry
     await redisClient.setEx(shortId, 86400, entry.redirectURL);
     console.log("Cache Miss! Stored in Redis.");
 
     res.redirect(entry.redirectURL);
   } catch (error) {
-    console.error("Error in redirecting:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+app.get("/analytics/:shortId", async (req, res) => {
+  try {
+    const shortId = req.params.shortId;
+
+    let cachedAnalytics = await redisClient.get(`analytics:${shortId}`);
+    if (cachedAnalytics) {
+      console.log("Analytics Cache Hit!");
+      return res.json(JSON.parse(cachedAnalytics));
+    }
+
+    const result = await URL.findOne({ shortId });
+    if (!result) return res.status(404).json({ error: "Short URL not found" });
+
+    const analyticsData = {
+      totalClicks: result.visitHistory.length,
+      analytics: result.visitHistory,
+    };
+
+    await redisClient.setEx(
+      `analytics:${shortId}`,
+      600,
+      JSON.stringify(analyticsData)
+    );
+
+    res.json(analyticsData);
+  } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
