@@ -1,25 +1,27 @@
 const mongoose = require("mongoose");
 const redis = require("redis");
 
-const mongoURI = "mongodb://localhost:27017/short-url";
-const redisClient = redis.createClient({ port: 6380 });
+// Use local MongoDB if you're not using Atlas
+const mongoURI = "mongodb://127.0.0.1:27017/short-url";
+
+// Correct Redis connection
+const redisClient = redis.createClient({ url: "redis://127.0.0.1:6380" });
 
 redisClient.on("error", (err) => console.error("Redis Error:", err));
 
 async function connectToMongoDB() {
   try {
-    // Connect to MongoDB
     await mongoose.connect(mongoURI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    console.log("MongoDB Connected");
+    console.log("✅ MongoDB Connected");
 
-    // Connect to Redis
     await redisClient.connect();
-    console.log("Redis Connected");
+    console.log("✅ Redis Connected");
   } catch (error) {
-    console.error("Connection Error:", error);
+    console.error("❌ Connection Error:", error);
+    process.exit(1); // Stop the app if DB fails
   }
 }
 

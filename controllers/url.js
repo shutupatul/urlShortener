@@ -18,6 +18,8 @@ async function handleGenerateNewShortUrl(req, res) {
     visitHistory: [],
   });
 
+  console.log(`🔗 New Short URL Created: ${shortId} -> ${url}`);
+
   return res.render("home", { id: newUrl.shortId });
 }
 
