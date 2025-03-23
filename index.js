@@ -1,6 +1,6 @@
 const express = require("express");
 const path = require("path");
-const { connectToMongoDB } = require("./connect");
+const { connectToMongoDB, redisClient } = require("./connect");
 const urlRoute = require("./routes/url");
 const errorHandler = require("./middlewares/errorHandler");
 const logger = require("./middlewares/logger");
@@ -34,6 +34,15 @@ app.use("/", staticRoute);
 app.get("/urls/:shortId", async (req, res) => {
   try {
     const shortId = req.params.shortId;
+
+    // Check Redis cache first
+    const cachedURL = await redisClient.get(shortId);
+    if (cachedURL) {
+      console.log("Cache Hit! Redirecting...");
+      return res.redirect(cachedURL);
+    }
+
+    // If not in cache, check MongoDB
     const entry = await URL.findOneAndUpdate(
       { shortId },
       { $push: { visitHistory: { timeStamp: Date.now() } } },
@@ -44,6 +53,10 @@ app.get("/urls/:shortId", async (req, res) => {
       return res.status(404).json({ error: "Short URL not found" });
     }
 
+    // Store in Redis for future requests
+    await redisClient.set(shortId, entry.redirectURL);
+
+    console.log("Cache Miss! Storing in Redis...");
     res.redirect(entry.redirectURL);
   } catch (error) {
     console.error("Error redirecting:", error);
