@@ -1,26 +1,39 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>Hoe Page</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="">
-    </head>
-    <body>
-        <h1>URL Shortener </h1>
-        <% if (locals.id) { %>
-         <p>URL Generated: http://localhost:8001/urls/<%= id %></p>
-        <% } %>
-        <div>
-            <form method="post" action="/url">
-                <label for="">Enter Your Original URL</label>
-                <input type="text"
-                 name ="url"
-                 placeholder="https://example.com"
-                />
-                <button type="submit">Generate</button>
-            </form>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <h2>URL Shortener</h2>
+        <div class="tabs">
+            <button class="tab active" data-tab="shorten">Shorten URL</button>
+            <button class="tab" data-tab="analytics">Analytics</button>
         </div>
-    </body>
+
+        <div id="shorten-tab" class="tab-content active">
+            <label for="long-url">Enter your long URL</label>
+            <input type="text" id="long-url" placeholder="https://example.com">
+            <button id="shorten-btn">Shorten URL</button>
+            <p id="url-error" style="color: red; display: none;">Please enter a valid URL.</p>
+            <p id="shorten-loader" style="display: none;">Shortening...</p>
+            <div id="shorten-result" style="display: none;">
+                <p>Shortened URL: <span id="short-url-text"></span></p>
+                <button id="copy-btn">Copy</button>
+            </div>
+        </div>
+
+        <div id="analytics-tab" class="tab-content">
+            <p>Analytics data will be displayed here.</p>
+        </div>
+    </div>
+
+    <script src="/scripts.js"></script>
+</body>
+
 </html>
