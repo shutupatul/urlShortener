@@ -1,23 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Signup</title>
+    <title>Login</title>
     <link rel="stylesheet" href="/styles.css">
 </head>
+
 <body>
-    <h1>Signup</h1>
-    <form action="/user" method="post">
+    <h1>Login</h1>
+    <form action="/user/login" method="post">
         <div style="border: solid; border-color: lightskyblue; border-radius: 5%; padding: 10%; margin-bottom: 10px;">
-            <label>Full Name</label>
-            <input type="text" required name="name">
             <label>Email</label>
             <input type="text" required name="email">
             <label>Password</label>
             <input type="password" required name="password">
         </div>
-        <button type="submit"> Submit </button>
+        <button type="submit"> Login </button>
     </form>
 </body>
+
 </html>

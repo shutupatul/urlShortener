@@ -73,34 +73,34 @@ app.get("/urls/:shortId", async (req, res) => {
   }
 });
 
-app.get("/analytics/:shortId", async (req, res) => {
-  try {
-    const shortId = req.params.shortId;
+// app.get("/analytics/:shortId", async (req, res) => {
+//   try {
+//     const shortId = req.params.shortId;
 
-    let cachedAnalytics = await redisClient.get(`analytics:${shortId}`);
-    if (cachedAnalytics) {
-      console.log("Analytics Cache Hit!");
-      return res.json(JSON.parse(cachedAnalytics));
-    }
+//     let cachedAnalytics = await redisClient.get(`analytics:${shortId}`);
+//     if (cachedAnalytics) {
+//       console.log("Analytics Cache Hit!");
+//       return res.json(JSON.parse(cachedAnalytics));
+//     }
 
-    const result = await URL.findOne({ shortId });
-    if (!result) return res.status(404).json({ error: "Short URL not found" });
+//     const result = await URL.findOne({ shortId });
+//     if (!result) return res.status(404).json({ error: "Short URL not found" });
 
-    const analyticsData = {
-      totalClicks: result.visitHistory.length,
-      analytics: result.visitHistory,
-    };
+//     const analyticsData = {
+//       totalClicks: result.visitHistory.length,
+//       analytics: result.visitHistory,
+//     };
 
-    await redisClient.setEx(
-      `analytics:${shortId}`,
-      600,
-      JSON.stringify(analyticsData)
-    );
+//     await redisClient.setEx(
+//       `analytics:${shortId}`,
+//       600,
+//       JSON.stringify(analyticsData)
+//     );
 
-    res.json(analyticsData);
-  } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
+//     res.json(analyticsData);
+//   } catch (error) {
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// });
 
 app.listen(PORT, () => console.log(`Server started at PORT: ${PORT}`));
