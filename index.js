@@ -6,6 +6,7 @@ const errorHandler = require("./middlewares/errorHandler");
 const rateLimiter = require("./middlewares/rateLimiter");
 const logger = require("./middlewares/logger");
 const staticRoute = require("./routes/staticRouter");
+const userRoute = require("./routes/user");
 const URL = require("./models/url");
 const helmet = require("helmet");
 const cors = require("cors");
@@ -35,6 +36,7 @@ app.set("view engine", "ejs");
 app.set("views", path.resolve("./views"));
 
 app.use("/", staticRoute);
+app.use("/user", userRoute);
 
 app.get("/urls/:shortId", async (req, res) => {
   try {
