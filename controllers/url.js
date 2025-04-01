@@ -17,7 +17,7 @@ async function handleGenerateNewShortUrl(req, res, next) {
 
     // Ensure it has "http://" or "https://"
     if (!/^https?:\/\//.test(longUrl)) {
-      longUrl = `https://${longUrl}`;
+      longUrl = `https://${longUrl}`; // Fixed string interpolation
     }
 
     // If custom alias exists, validate it
