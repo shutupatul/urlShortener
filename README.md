@@ -111,7 +111,8 @@ url-shortener/
 │-- views/
 │   ├── home.ejs     # Main frontend view
 │-- .env             # Environment variables
-│-- app.js           # Main server file
+│-- index.js         # Main server file
+│-- connect.js       # Connect mongoose schema  
 │-- package.json     # Project dependencies
 │-- README.md        # Project documentation
 ```
